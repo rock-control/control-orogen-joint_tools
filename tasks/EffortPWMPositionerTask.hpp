@@ -114,6 +114,7 @@ variable duty cycle
         base::samples::Joints mState;
         base::samples::Joints mCommand;
         std::vector<base::Time> mOff;
+        PWMPositionerError mError;
     };
 }
 

@@ -40,6 +40,7 @@ bool EffortPWMPositionerTask::configureHook()
     mTargets.elements.resize(size);
     mState.elements.resize(size);
     mCommand.elements.resize(size);
+    mError.joints.resize(size);
     mOff.resize(size);
     return true;
 }
@@ -123,7 +124,12 @@ void EffortPWMPositionerTask::updateHook()
                 error > 0 ? mEfforts[i] : -mEfforts[i];
         else
             mCommand.elements[i].effort = 0;
+
+        mError.joints[i].error = error;
+        mError.joints[i].duty = cycle;
     }
+    mError.time = now;
+    _error.write(mError);
     _joints_cmd.write(mCommand);
 }
 void EffortPWMPositionerTask::errorHook()

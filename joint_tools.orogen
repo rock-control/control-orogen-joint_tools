@@ -35,6 +35,9 @@ task_context "EffortPWMPositionerTask" do
     # The command
     output_port 'joints_cmd', '/base/samples/Joints'
 
+    # The position error
+    output_port 'error', '/joint_tools/PWMPositionerError'
+
     port_driven
 
     exception_states 'UNEXPECTED_TARGET_SIZE', 'NO_POSITION_IN_TARGET',
