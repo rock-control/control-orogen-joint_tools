@@ -1,0 +1,43 @@
+name "joint_tools"
+
+import_types_from "joint_toolsTypes.hpp"
+import_types_from "std"
+import_types_from "base"
+
+# Task that tries to reach joint position(s) using a constant effort with a
+# variable duty cycle
+task_context "EffortPWMPositionerTask" do
+    needs_configuration
+
+    # Proportional parameters
+    #
+    # The duty cycle is K * error, in [-1, 1]
+    property "K", "/std/vector</double>"
+
+    # The constant effort to apply on the ON part of the cycle
+    property "efforts", "/std/vector</double>"
+
+    # The cycle period
+    #
+    # Note that it's the component's deployer role to ensure that
+    # the component's updateHook gets called often enough to ensure
+    # the cycle duration.
+    #
+    # The default is to be port driven on the input port
+    property "cycle_duration", "/base/Time"
+
+    # The target position
+    input_port "joints_target", "/base/samples/Joints"
+
+    # The joints state
+    input_port "joints_position", "/base/samples/Joints"
+
+    # The command
+    output_port 'joints_cmd', '/base/samples/Joints'
+
+    port_driven
+
+    exception_states 'UNEXPECTED_TARGET_SIZE', 'NO_POSITION_IN_TARGET',
+        'UNEXPECTED_POSITION_SIZE', 'NO_POSITION_IN_POSITION'
+end
+
