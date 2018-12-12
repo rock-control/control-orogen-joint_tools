@@ -106,8 +106,7 @@ variable duty cycle
         void cleanupHook();
 
     private:
-        std::vector<double> mK;
-        std::vector<double> mEfforts;
+        std::vector<PWMPositionerJointSettings> mSettings;
         base::Time mNextCycle;
         base::Time mPeriod;
         base::samples::Joints mTargets;

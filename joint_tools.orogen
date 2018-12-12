@@ -9,13 +9,8 @@ import_types_from "base"
 task_context "EffortPWMPositionerTask" do
     needs_configuration
 
-    # Proportional parameters
-    #
-    # The duty cycle is K * error, in [-1, 1]
-    property "K", "/std/vector</double>"
-
-    # The constant effort to apply on the ON part of the cycle
-    property "efforts", "/std/vector</double>"
+    # The controller settings
+    property "settings", "/std/vector</joint_tools/PWMPositionerJointSettings>"
 
     # The cycle period
     #

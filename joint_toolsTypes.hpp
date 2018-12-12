@@ -16,6 +16,26 @@ namespace joint_tools {
         base::Time time;
         std::vector<PWMPositionerJointError> joints;
     };
+
+    struct PWMPositionerJointSettings
+    {
+        /** Proportional gain to be used on positive movements
+         * (when the current position is less than the target
+         */
+        float Kpositive;
+        /** Effort to be used on positive movements
+         * (when the current position is less than the target
+         */
+        float Epositive;
+        /** Proportional gain to be used on negative movements
+         * (when the current position is more than the target
+         */
+        float Knegative;
+        /** Effort to be used on negative movements
+         * (when the current position is more than the target
+         */
+        float Enegative;
+    };
 }
 
 #endif

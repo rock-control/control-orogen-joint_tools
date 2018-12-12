@@ -5,8 +5,20 @@ describe OroGen.joint_tools.EffortPWMPositionerTask do
     before do
         syskit_stub_conf(OroGen.joint_tools.EffortPWMPositionerTask, 'default',
             data: {
-                'K' => [0.01, 0.02],
-                'efforts' => [10, 20],
+                'settings' => [
+                    {
+                        'Kpositive' => 0.03,
+                        'Knegative' => 0.01,
+                        'Epositive' => 10,
+                        'Enegative' => -10
+                    },
+                    {
+                        'Kpositive' => 0.02,
+                        'Knegative' => 0.04,
+                        'Epositive' => 20,
+                        'Enegative' => -20
+                    }
+                ],
                 'cycle_duration' => Time.at(1)
             }
         )
@@ -19,18 +31,6 @@ describe OroGen.joint_tools.EffortPWMPositionerTask do
     end
 
     describe 'size validation' do
-        it "fails to configure if the size of the K and efforts property don't match" do
-            syskit_stub_conf(OroGen.joint_tools.EffortPWMPositionerTask, 'default',
-                data: {
-                    'K' => [1]
-                }
-            )
-            deployed = syskit_deploy(subject_syskit_model)
-            expect_execution.scheduler(true).to do
-                fail_to_start deployed, reason: Orocos::StateTransitionFailed
-            end
-        end
-
         describe "at runtime" do
             attr_reader :deployed
             before do

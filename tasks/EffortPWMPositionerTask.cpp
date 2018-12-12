@@ -29,14 +29,10 @@ bool EffortPWMPositionerTask::configureHook()
     if (! EffortPWMPositionerTaskBase::configureHook())
         return false;
 
-    mK = _K.get();
-    mEfforts = _efforts.get();
+    mSettings = _settings.get();
     mPeriod = _cycle_duration.get();
 
-    if (mK.size() != mEfforts.size())
-        throw std::invalid_argument("size of K and efforts differ");
-
-    size_t size = mK.size();
+    size_t size = mSettings.size();
     mTargets.elements.resize(size);
     mState.elements.resize(size);
     mCommand.elements.resize(size);
@@ -66,12 +62,12 @@ void EffortPWMPositionerTask::updateHook()
     if (_joints_position.read(mState, false) == RTT::NoData)
         return;
 
-    if (mTargets.elements.size() != mK.size())
+    if (mTargets.elements.size() != mSettings.size())
     {
         exception(UNEXPECTED_TARGET_SIZE);
         return;
     }
-    else if (mState.elements.size() != mK.size())
+    else if (mState.elements.size() != mSettings.size())
     {
         exception(UNEXPECTED_POSITION_SIZE);
         return;
@@ -117,11 +113,21 @@ void EffortPWMPositionerTask::updateHook()
     {
         double error = mTargets.elements[i].position -
             mState.elements[i].position;
-        double cycle = std::fabs(mK[i] * error);
+
+        auto const& settings = mSettings[i];
+        double cycle;
+        double effort;
+        if (error > 0) {
+            cycle = std::fabs(settings.Kpositive * error);
+            effort = settings.Epositive;
+        }
+        else {
+            cycle = std::fabs(settings.Knegative * error);
+            effort = settings.Enegative;
+        }
         mOff[i] = now + mPeriod * cycle;
         if (mOff[i] > now)
-            mCommand.elements[i].effort =
-                error > 0 ? mEfforts[i] : -mEfforts[i];
+            mCommand.elements[i].effort = effort;
         else
             mCommand.elements[i].effort = 0;
 
