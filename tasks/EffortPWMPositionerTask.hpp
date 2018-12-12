@@ -4,6 +4,8 @@
 #define JOINT_TOOLS_EFFORTPWMPOSITIONERTASK_TASK_HPP
 
 #include "joint_tools/EffortPWMPositionerTaskBase.hpp"
+#include <joint_tools/PWMJointPositioner.hpp>
+
 
 namespace joint_tools{
 
@@ -106,14 +108,13 @@ variable duty cycle
         void cleanupHook();
 
     private:
-        std::vector<PWMPositionerJointSettings> mSettings;
-        base::Time mNextCycle;
-        base::Time mPeriod;
+        std::vector<PWMSettings> mSettings;
+
+        PWMJointPositioner mPositioner;
+        PWMPositionerError mErrors;
         base::samples::Joints mTargets;
         base::samples::Joints mState;
         base::samples::Joints mCommand;
-        std::vector<base::Time> mOff;
-        PWMPositionerError mError;
     };
 }
 

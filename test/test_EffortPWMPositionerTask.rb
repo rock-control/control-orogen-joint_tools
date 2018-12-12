@@ -7,19 +7,20 @@ describe OroGen.joint_tools.EffortPWMPositionerTask do
             data: {
                 'settings' => [
                     {
+                        'period' => Time.at(1),
                         'Kpositive' => 0.03,
                         'Knegative' => 0.01,
-                        'Epositive' => 10,
-                        'Enegative' => -10
+                        'Vpositive' => 10,
+                        'Vnegative' => -10
                     },
                     {
+                        'period' => Time.at(1),
                         'Kpositive' => 0.02,
                         'Knegative' => 0.04,
-                        'Epositive' => 20,
-                        'Enegative' => -20
+                        'Vpositive' => 20,
+                        'Vnegative' => -20
                     }
-                ],
-                'cycle_duration' => Time.at(1)
+                ]
             }
         )
 

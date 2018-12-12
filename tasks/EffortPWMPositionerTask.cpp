@@ -30,14 +30,14 @@ bool EffortPWMPositionerTask::configureHook()
         return false;
 
     mSettings = _settings.get();
-    mPeriod = _cycle_duration.get();
+    // Pre-allocate. We're going to re-do it in startHook to reinitialize
+    mPositioner = PWMJointPositioner(mSettings);
 
     size_t size = mSettings.size();
     mTargets.elements.resize(size);
     mState.elements.resize(size);
     mCommand.elements.resize(size);
-    mError.joints.resize(size);
-    mOff.resize(size);
+    mErrors.joints.resize(size);
     return true;
 }
 bool EffortPWMPositionerTask::startHook()
@@ -45,12 +45,7 @@ bool EffortPWMPositionerTask::startHook()
     if (! EffortPWMPositionerTaskBase::startHook())
         return false;
 
-    for (auto& time : mOff)
-        time = base::Time();
-    for (auto& joint : mCommand.elements)
-        joint = base::JointState::Effort(0);
-
-    mNextCycle = base::Time();
+    mPositioner = PWMJointPositioner(mSettings);
     return true;
 }
 void EffortPWMPositionerTask::updateHook()
@@ -91,52 +86,16 @@ void EffortPWMPositionerTask::updateHook()
     }
 
     base::Time now = mState.time;
-    if (mNextCycle.isNull()) {
-        mNextCycle = now;
-    }
+
+    auto const& commands = mPositioner.update(now, mTargets, mState);
+    for (size_t i = 0; i < mSettings.size(); ++i)
+        mCommand.elements[i].effort = commands[i];
     mCommand.time = now;
-
-    if (now < mNextCycle)
-    {
-        for (size_t i = 0; i < mOff.size(); ++i)
-            if (mOff[i] < now)
-                mCommand.elements[i].effort = 0;
-
-        _joints_cmd.write(mCommand);
-        return;
-    }
-
-    while (now >= mNextCycle) {
-        mNextCycle = mNextCycle + mPeriod;
-    }
-    for (size_t i = 0; i < mOff.size(); ++i)
-    {
-        double error = mTargets.elements[i].position -
-            mState.elements[i].position;
-
-        auto const& settings = mSettings[i];
-        double cycle;
-        double effort;
-        if (error > 0) {
-            cycle = std::fabs(settings.Kpositive * error);
-            effort = settings.Epositive;
-        }
-        else {
-            cycle = std::fabs(settings.Knegative * error);
-            effort = settings.Enegative;
-        }
-        mOff[i] = now + mPeriod * cycle;
-        if (mOff[i] > now)
-            mCommand.elements[i].effort = effort;
-        else
-            mCommand.elements[i].effort = 0;
-
-        mError.joints[i].error = error;
-        mError.joints[i].duty = cycle;
-    }
-    mError.time = now;
-    _error.write(mError);
     _joints_cmd.write(mCommand);
+
+    mErrors.time = now;
+    mErrors.joints = mPositioner.getErrors();
+    _error.write(mErrors);
 }
 void EffortPWMPositionerTask::errorHook()
 {

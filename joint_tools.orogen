@@ -1,5 +1,8 @@
 name "joint_tools"
 
+using_library 'joint_tools'
+import_types_from 'joint_tools/PWMSettings.hpp'
+import_types_from 'joint_tools/PWMError.hpp'
 import_types_from "joint_toolsTypes.hpp"
 import_types_from "std"
 import_types_from "base"
@@ -10,16 +13,7 @@ task_context "EffortPWMPositionerTask" do
     needs_configuration
 
     # The controller settings
-    property "settings", "/std/vector</joint_tools/PWMPositionerJointSettings>"
-
-    # The cycle period
-    #
-    # Note that it's the component's deployer role to ensure that
-    # the component's updateHook gets called often enough to ensure
-    # the cycle duration.
-    #
-    # The default is to be port driven on the input port
-    property "cycle_duration", "/base/Time"
+    property "settings", "/std/vector</joint_tools/PWMSettings>"
 
     # The target position
     input_port "joints_target", "/base/samples/Joints"
