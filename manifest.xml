@@ -1,5 +1,6 @@
 <package>
   <description brief="Components generally useful in networks that deal with joints">
+     This is paired with control/joint_tools
   </description>
   <author>Sylvain Joyeux/sylvain.joyeux@13robotics.com</author>
   <license>BSD</license>
